@@ -223,8 +223,18 @@
         const mainBgm = document.getElementById('mainBgm');
         const shayariBgm = document.getElementById('shayariBgm');
 
+        // --- CUSTOM MUSIC SETTINGS ---
+        const mainSkipSeconds = 10;    // Skip first 10 seconds of Main song
+        const shayariSkipSeconds = 15;  // Skip first 15 seconds of Shayari song
+        // -----------------------------
+
         function startStory() {
-            mainBgm.play().catch(e => console.log("Music needs interaction"));
+            // Only set time and play if it's currently paused
+            if (mainBgm.paused) {
+                mainBgm.currentTime = mainSkipSeconds; 
+                mainBgm.play().catch(e => console.log("Music needs interaction"));
+            }
+
             document.querySelector('#intro .btn-start').innerText = "Scrolling down...";
             setTimeout(() => {
                 window.scrollBy(0, window.innerHeight);
@@ -232,10 +242,15 @@
         }
 
         function playShayari(id) {
-            // Stop main music, play Samjhawan
+            // Stop main music
             mainBgm.pause();
-            shayariBgm.currentTime = 0;
-            shayariBgm.play();
+
+            // Only start the Shayari song if it isn't already playing
+            // This prevents the song from restarting every time she taps a card
+            if (shayariBgm.paused) {
+                shayariBgm.currentTime = shayariSkipSeconds;
+                shayariBgm.play();
+            }
 
             // Handle UI toggle
             document.querySelectorAll('.shayari-text').forEach(el => el.style.display = 'none');
@@ -247,6 +262,7 @@
 
         function resumeMain() {
             shayariBgm.pause();
+            // Just play without resetting time so it resumes where it left off
             mainBgm.play();
             document.querySelectorAll('.shayari-text').forEach(el => el.style.display = 'none');
             document.querySelectorAll('.shayari-card span').forEach(el => el.style.display = 'block');
